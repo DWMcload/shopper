@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Models\ShopType;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class StoreShopRequest extends FormRequest
 {
@@ -11,7 +15,7 @@ class StoreShopRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +26,23 @@ class StoreShopRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string'],
+            'latitude' => ['required', 'decimal'],
+            'longitude' => ['required', 'decimal'],
+            'status' => ['required', Rule::enum(ShopType::class)
+                ->only([ShopType::OPEN, ShopType::CLOSED])
+            ],
+            'store_type_id' => ['required', 'exists:stores,id', 'integer'],
+            'max_delivery_distance' => ['required', 'decimal'],
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'success'   => false,
+            'message'   => 'Validation errors',
+            'data'      => $validator->errors()
+        ]));
     }
 }
