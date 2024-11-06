@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
-use App\Http\Models\ShopType;
+use App\Models\Shop;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -27,13 +29,13 @@ class StoreShopRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'latitude' => ['required', 'decimal'],
-            'longitude' => ['required', 'decimal'],
-            'status' => ['required', Rule::enum(ShopType::class)
-                ->only([ShopType::OPEN, ShopType::CLOSED])
+            'latitude' => ['required', 'decimal:0,6'],
+            'longitude' => ['required', 'decimal:0,6'],
+            'status' => ['required',
+                Rule::in([Shop::OPEN, Shop::CLOSED])
             ],
-            'store_type_id' => ['required', 'exists:stores,id', 'integer'],
-            'max_delivery_distance' => ['required', 'decimal'],
+            'store_type_id' => ['required', 'exists:store_types,id', 'integer'],
+            'max_delivery_distance' => ['required', 'decimal:0,4'],
         ];
     }
 

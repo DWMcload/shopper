@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Classes\ApiResponse;
@@ -7,37 +9,24 @@ use App\Http\Requests\StoreShopRequest;
 use App\Http\Requests\UpdateShopRequest;
 use App\Http\Resources\ShopResource;
 use App\Interfaces\ShopRepositoryInterface;
-use App\Models\Shop;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 
 class ShopController extends Controller
 {
-    public function __construct(private ShopRepositoryInterface $shopRepositoryInterface)
+    public function __construct(private readonly ShopRepositoryInterface $shopRepositoryInterface)
     {
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
         $data = $this->shopRepositoryInterface->index();
 
-        return ApiResponse::sendResponse(ShopResource::collection($data),'',200);
+        return ApiResponse::sendResponse(ShopResource::collection($data), '');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreShopRequest $request)
+    public function store(StoreShopRequest $request): JsonResponse
     {
         $details = [
             'name' => $request->name,
@@ -47,40 +36,27 @@ class ShopController extends Controller
             'store_type_id' => $request->store_type_id,
             'max_delivery_distance' => $request->max_delivery_distance
         ];
+
         DB::beginTransaction();
-        try{
+        try {
             $shop = $this->shopRepositoryInterface->store($details);
 
             DB::commit();
-            return ApiResponse::sendResponse(new ShopResource($shop),'Shop Creation Successful',201);
 
-        } catch(\Exception $ex){
+        } catch (\Exception $ex) {
             ApiResponse::rollback($ex);
         }
+        return ApiResponse::sendResponse(new ShopResource($shop), 'Shop Creation Successful', 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function show(string $id): JsonResponse
     {
-        $shop = $this->shopRepositoryInterface->getById($id);
+        $shop = $this->shopRepositoryInterface->getById(Uuid::fromString($id));
 
-        return ApiResponse::sendResponse(new ShopResource($shop),'',200);
+        return ApiResponse::sendResponse(new ShopResource($shop), '', 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Shop $shop)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateShopRequest $request, $id)
+    public function update(UpdateShopRequest $request, string $id): JsonResponse
     {
         $updateDetails = [
             'name' => $request->name,
@@ -91,25 +67,19 @@ class ShopController extends Controller
             'max_delivery_distance' => $request->max_delivery_distance
         ];
         DB::beginTransaction();
-        try{
-            $this->shopRepositoryInterface->update($updateDetails, $id);
-
+        try {
+            $this->shopRepositoryInterface->update($updateDetails, Uuid::fromString($id));
             DB::commit();
-            return ApiResponse::sendResponse('Shop Updating Successful','',201);
-
-        }
-        catch(\Exception $ex){
+        } catch (\Exception $ex) {
             ApiResponse::rollback($ex);
         }
+        return ApiResponse::sendResponse('Shop Updating Successful', '', 201);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+    public function destroy(string $id): JsonResponse
     {
-        $this->shopRepositoryInterface->delete($id);
+        $this->shopRepositoryInterface->delete(Uuid::fromString($id));
 
-        return ApiResponse::sendResponse('Shop Deleting Successful','',204);
+        return ApiResponse::sendResponse('Shop Deleting Successful', '', 204);
     }
 }

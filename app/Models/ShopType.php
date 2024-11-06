@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Models;
+declare(strict_types=1);
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class ShopType extends Model
 {
-
-    const OPEN = 'open';
-    const CLOSED = 'closed';
 }

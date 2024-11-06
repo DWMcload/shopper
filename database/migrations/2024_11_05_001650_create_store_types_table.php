@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,11 +17,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement("SET NAMES utf8mb4;
-                                INSERT INTO `store_types` (`id`, `name`, `created_at`, `updated_at`) VALUES
-                                    (1,	'Takeaway',	now(),	NULL),
-                                    (2,	'Shop',	now(),	NULL),
-                                    (3,	'Restaurant',	now(),	NULL);");
+        DB::statement("INSERT INTO `store_types` (`id`, `name`, `created_at`, `updated_at`) VALUES
+                                (1,	'Takeaway',	now(),	NULL),
+                                (2,	'Shop',	now(),	NULL),
+                                (3,	'Restaurant',	now(),	NULL);");
     }
 
     /**

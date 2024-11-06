@@ -1,10 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client;
@@ -42,8 +41,7 @@ class FetchPostcodes extends Command
                 Storage::put('postcodes_sql.zip', $response->getBody()->getContents());
             });
             $promise->wait();
-        }
-        catch (TransferException $e) {
+        } catch (TransferException $e) {
             logger()->error($e);
             return 1;
         }
@@ -72,8 +70,7 @@ class FetchPostcodes extends Command
             foreach ($statements as $stmt) {
                 DB::statement($stmt);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             logger()->error($e);
             return 4;
         }
